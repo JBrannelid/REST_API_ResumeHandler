@@ -1,0 +1,146 @@
+﻿using Microsoft.EntityFrameworkCore;
+using REST_API_ResumeHandler.Data;
+using REST_API_ResumeHandler.DTOs.Education;
+using REST_API_ResumeHandler.Models;
+using System.ComponentModel.DataAnnotations;
+
+namespace REST_API_ResumeHandler.Endpoints
+{
+    public static class EducationEndpoints
+    {
+        public static RouteGroupBuilder MapEducationEndpoints(this RouteGroupBuilder group)
+        {
+            group.MapGet("/", async (AppDbContext ctx) =>
+            {
+                var educationList = await ctx.Educations.Select(e => new EducationDto
+                {
+                    EducationId = e.EducationId,
+                    School = e.School,
+                    Degree = e.Degree,
+                    StartYear = e.StartYear,
+                    EndYear = e.EndYear,
+                    FKPersonId = e.FKPersonId
+                }).ToListAsync();
+                return Results.Ok(educationList);
+            });
+
+            group.MapGet("/{id}", async (AppDbContext ctx, int id) =>
+            {
+                var education = await ctx.Educations.Select(e => new EducationDto
+                {
+                    EducationId = e.EducationId,
+                    School = e.School,
+                    Degree = e.Degree,
+                    StartYear = e.StartYear,
+                    EndYear = e.EndYear,
+                    FKPersonId = e.FKPersonId
+                }).FirstOrDefaultAsync(e => e.EducationId == id);
+
+                if (education is not null)
+                    return Results.Ok(education);
+
+                return Results.NotFound("Sorry, this education record doesn't exist in the system");
+            });
+
+            group.MapGet("/person/{personId}", async (AppDbContext ctx, int personId) =>
+            {
+                var educationList = await ctx.Educations
+                    .Where(e => e.FKPersonId == personId)
+                    .Select(e => new EducationDto
+                    {
+                        EducationId = e.EducationId,
+                        School = e.School,
+                        Degree = e.Degree,
+                        StartYear = e.StartYear,
+                        EndYear = e.EndYear,
+                        FKPersonId = e.FKPersonId
+                    }).ToListAsync();
+
+                if (educationList.Any())
+                    return Results.Ok(educationList);
+
+                return Results.NotFound($"No education records found for person with ID {personId}");
+            });
+
+            group.MapPost("/", async (AppDbContext ctx, EducationDto newEducation) =>
+            {
+                // Create a validation context for the new experience DTO and prepare a list to collect validation results
+                var validationContext = new ValidationContext(newEducation);
+                var validationResult = new List<ValidationResult>();
+
+                bool isValid = Validator.TryValidateObject(newEducation, validationContext, validationResult, true);
+
+                if (!isValid)
+                {
+                    return Results.BadRequest(validationResult.Select(v => v.ErrorMessage));
+                }
+
+                // Check if person with provided FKPersonId exists
+                var person = await ctx.Persons.FindAsync(newEducation.FKPersonId);
+                if (person is null)
+                {
+                    return Results.BadRequest($"Person with ID {newEducation.FKPersonId} does not exist");
+                }
+
+                // If validation and person check pass
+                var education = new Education
+                {
+                    School = newEducation.School,
+                    Degree = newEducation.Degree,
+                    StartYear = newEducation.StartYear,
+                    EndYear = newEducation.EndYear,
+                    FKPersonId = newEducation.FKPersonId
+                };
+
+                ctx.Educations.Add(education);
+                await ctx.SaveChangesAsync();
+
+                return Results.Created($"/api/education/{education.EducationId}", education);
+            });
+
+            group.MapPut("/{id}", async (AppDbContext ctx, int id, EducationDto updatedEducation) =>
+            {
+                var education = await ctx.Educations.FirstOrDefaultAsync(e => e.EducationId == id);
+                if (education is null)
+                    return Results.NotFound("Sorry, this education record doesn't exist in the system");
+
+                // Check if the referenced person exists
+                if (education.FKPersonId != updatedEducation.FKPersonId)
+                {
+                    var person = await ctx.Persons.FindAsync(updatedEducation.FKPersonId);
+
+                    if (person is null)
+                    {
+                        // If person is not found, return a 400 Bad Request with a custom message
+                        return Results.BadRequest($"Person with ID {updatedEducation.FKPersonId} does not exist");
+                    }
+                }
+
+                // Update the existing education
+                education.School = updatedEducation.School;
+                education.Degree = updatedEducation.Degree;
+                education.StartYear = updatedEducation.StartYear;
+                education.EndYear = updatedEducation.EndYear;
+                education.FKPersonId = updatedEducation.FKPersonId;
+
+                await ctx.SaveChangesAsync();
+
+                return Results.Ok(education);
+            });
+
+            group.MapDelete("/{id}", async (AppDbContext ctx, int id) =>
+            {
+                var education = await ctx.Educations.FindAsync(id);
+                if (education is null)
+                    return Results.NotFound("Sorry, this education record doesn't exist in the system");
+
+                ctx.Educations.Remove(education);
+                await ctx.SaveChangesAsync();
+
+                return Results.NoContent();
+            });
+
+            return group;
+        }
+    }
+}
