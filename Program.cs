@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using REST_API_ResumeHandler.Data;
 using REST_API_ResumeHandler.Endpoints;
@@ -18,9 +17,12 @@ namespace REST_API_ResumeHandler
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Register DbContext in DI-container 
+            // Register SQL Server database context with connection string from configuration
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // HttpClient services for external API
+            builder.Services.AddHttpClient();
 
             var app = builder.Build();
 
@@ -35,10 +37,15 @@ namespace REST_API_ResumeHandler
 
             app.UseAuthorization();
 
-            // Call Endpoints by Rout group builder
+            // Call internal endpoints using Route Group Builder organization of related endpoints
+            // This approach groups endpoints by common path prefixes
             app.MapGroup("/api/person").MapPersonEndpoints();
             app.MapGroup("/api/education").MapEducationEndpoints();
             app.MapGroup("/api/experience").MapExperienceEndpoints();
+
+            // Call external endpoints directly with direct mapping
+            // Direct mapping for GitHub as it only has a single endpoint
+            app.MapGitHubEndpoints();
 
             app.Run();
         }
@@ -47,4 +54,5 @@ namespace REST_API_ResumeHandler
 
 /*  Reference
  *  Youtube: https://www.youtube.com/watch?v=VNmFvk49rJk
+ *  Repository: https://github.com/aldorQlok/CodeFirstDB.git
  */

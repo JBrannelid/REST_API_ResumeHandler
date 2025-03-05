@@ -17,18 +17,16 @@ namespace REST_API_ResumeHandler.Models
         public string Degree { get; set; }
 
         [Required]
-        [Range(1950, 2050, ErrorMessage = "Provide a valid year between 1950 och 2050")]
+        [Range(1950, 2050, ErrorMessage = "Provide a valid year between 1950 and 2050")]
         public int StartYear { get; set; }
 
-        [Range(1950, 2050, ErrorMessage = "Provide a valid year between 1950 och 2050")]
+        [Range(1950, 2050, ErrorMessage = "Provide a valid year between 1950 and 2050")]
         public int? EndYear { get; set; }
-
 
         // Foreign key
 
         [ForeignKey("Person")]
         public int FKPersonId { get; set; }
-
 
         // Navigation property
         public Person Person { get; set; }

@@ -5,24 +5,24 @@
 namespace REST_API_ResumeHandler.Migrations
 {
     /// <inheritdoc />
-    public partial class init2 : Migration
+    public partial class Updatetypomisstakes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(
-                name: "Email",
+                name: "EmailAdress",
                 table: "Persons",
-                newName: "EmailAdress");
+                newName: "EmailAddress");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(
-                name: "EmailAdress",
+                name: "EmailAddress",
                 table: "Persons",
-                newName: "Email");
+                newName: "EmailAdress");
         }
     }
 }

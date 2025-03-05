@@ -12,15 +12,13 @@ namespace REST_API_ResumeHandler.Endpoints
         {
             group.MapGet("/", async (AppDbContext ctx) =>
             {
-                var experienceList = await ctx.Experiences.Select(e => new ExperienceDto
+                var experienceList = await ctx.Experiences.Select(e => new PublicExperienceDto
                 {
-                    ExperienceId = e.ExperienceId,
                     Title = e.Title,
                     Company = e.Company,
                     Description = e.Description,
                     StartYear = e.StartYear,
-                    EndYear = e.EndYear,
-                    FKPersonId = e.FKPersonId
+                    EndYear = e.EndYear
                 }).ToListAsync();
 
                 // Statuscode 200 Ok
@@ -29,19 +27,20 @@ namespace REST_API_ResumeHandler.Endpoints
 
             group.MapGet("/{id}", async (AppDbContext ctx, int id) =>
             {
-                var experience = await ctx.Experiences.Select(e => new ExperienceDto
+                var experience = await ctx.Experiences
+                .Where(e => e.ExperienceId == id)
+                .Select(e => new PublicExperienceDto
                 {
-                    ExperienceId = e.ExperienceId,
                     Title = e.Title,
                     Company = e.Company,
                     Description = e.Description,
                     StartYear = e.StartYear,
-                    EndYear = e.EndYear,
-                    FKPersonId = e.FKPersonId
-                }).FirstOrDefaultAsync(e => e.ExperienceId == id);
+                    EndYear = e.EndYear
+                }).FirstOrDefaultAsync();
 
                 // If the experience is found, return a 200 OK status with the experience details
                 if (experience is not null)
+                    // Statuscode 200 Ok
                     return Results.Ok(experience);
 
                 // If no experience is found, return a 404 Not Found status with a custom message
@@ -52,25 +51,25 @@ namespace REST_API_ResumeHandler.Endpoints
             {
                 var experienceList = await ctx.Experiences
                     .Where(e => e.FKPersonId == personId) // Filter experiences by the FKPersonId
-                    .Select(e => new ExperienceDto
+                    .Select(e => new PublicExperienceDto
                     {
-                        ExperienceId = e.ExperienceId,
                         Title = e.Title,
                         Company = e.Company,
                         Description = e.Description,
                         StartYear = e.StartYear,
-                        EndYear = e.EndYear,
-                        FKPersonId = e.FKPersonId
+                        EndYear = e.EndYear
                     }).ToListAsync();
 
                 // If experience records are found, return experienceList with a 200 OK status
                 if (experienceList.Any())
+                    // Statuscode 200 Ok
                     return Results.Ok(experienceList);
 
+                // If no experience records are found, return a 404 Not Found status with a custom message
                 return Results.NotFound($"No experience records found for person with ID {personId}");
             });
 
-            group.MapPost("/", async (AppDbContext ctx, ExperienceDto newExperience) =>
+            group.MapPost("/", async (AppDbContext ctx, CreateExperienceDto newExperience) =>
             {
                 // Create a validation context for the new experience DTO and prepare a list to collect validation results
                 var validationContext = new ValidationContext(newExperience);
@@ -81,6 +80,7 @@ namespace REST_API_ResumeHandler.Endpoints
                 // If the validation fails, return a 400 Bad Request with the validation error messages
                 if (!isValid)
                 {
+                    // Statuscode: 400 Bad Request
                     return Results.BadRequest(validationResult.Select(v => v.ErrorMessage));
                 }
 
@@ -88,6 +88,7 @@ namespace REST_API_ResumeHandler.Endpoints
                 var person = await ctx.Persons.FindAsync(newExperience.FKPersonId);
                 if (person is null)
                 {
+                    // Statuscode: 400 Bad Request
                     return Results.BadRequest($"Person with ID {newExperience.FKPersonId} does not exist");
                 }
 
@@ -105,16 +106,27 @@ namespace REST_API_ResumeHandler.Endpoints
                 ctx.Experiences.Add(experience);
                 await ctx.SaveChangesAsync();
 
-                return Results.Created($"/api/experience/{experience.ExperienceId}", experience);
+                // Return response DTO
+                var responseDto = new PublicExperienceDto
+                {
+                    Title = experience.Title,
+                    Company = experience.Company,
+                    Description = experience.Description,
+                    StartYear = experience.StartYear,
+                    EndYear = experience.EndYear
+                };
+
+                return Results.Created($"/api/experience/{experience.ExperienceId}", responseDto);
             });
 
-            group.MapPut("/{id}", async (AppDbContext ctx, int id, ExperienceDto updatedExperience) =>
+            group.MapPut("/{id}", async (AppDbContext ctx, int id, UpdateExperienceDto updatedExperience) =>
             {
                 var experience = await ctx.Experiences.FirstOrDefaultAsync(e => e.ExperienceId == id);
                 if (experience is null)
+                    // Statuscode: 404 Not Found
                     return Results.NotFound("Sorry, this experience record doesn't exist in the system");
 
-                // Check if the referenced person exists
+                // Check if the referenced person exists when FKPersonId changes
                 if (experience.FKPersonId != updatedExperience.FKPersonId)
                 {
                     var person = await ctx.Persons.FindAsync(updatedExperience.FKPersonId);
@@ -135,8 +147,20 @@ namespace REST_API_ResumeHandler.Endpoints
 
                 await ctx.SaveChangesAsync();
 
+                // Return response DTO
+                var responseDto = new ExperienceResponseDto
+                {
+                    ExperienceId = experience.ExperienceId,
+                    Title = experience.Title,
+                    Company = experience.Company,
+                    Description = experience.Description,
+                    StartYear = experience.StartYear,
+                    EndYear = experience.EndYear,
+                    FKPersonId = experience.FKPersonId
+                };
+
                 // Statuscode: 200 Ok
-                return Results.Ok(experience);
+                return Results.Ok(responseDto);
             });
 
             group.MapDelete("/{id}", async (AppDbContext ctx, int id) =>

@@ -14,7 +14,8 @@ namespace REST_API_ResumeHandler.Data
         public DbSet<Experience> Experiences { get; set; }
 
 
-        // Seed Test Data to the database with fixed persons, educations and experiences
+        // Seed the database with test data
+        // This approach creates sample persons, their education history, and work experiences
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -27,7 +28,7 @@ namespace REST_API_ResumeHandler.Data
                     PersonId = 1,
                     FirstName = "Tolvan",
                     LastName = "Tolvansson",
-                    EmailAdress = "tolvan@email.com",
+                    EmailAddress = "tolvan@email.com",
                     PhoneNumber = "0701234567",
                     Description = "Sjuksköterska inom akutsjukvården"
                 },
@@ -37,7 +38,7 @@ namespace REST_API_ResumeHandler.Data
                     PersonId = 2,
                     FirstName = "Elvan",
                     LastName = "Elvansson",
-                    EmailAdress = "elvan@email.com",
+                    EmailAddress = "elvan@email.com",
                     PhoneNumber = "0709876543",
                     Description = "Upphandlare inom Stockholms Kommun"
                 },
@@ -47,7 +48,7 @@ namespace REST_API_ResumeHandler.Data
                     PersonId = 3,
                     FirstName = "Tian",
                     LastName = "Tiansson",
-                    EmailAdress = "tian@email.com",
+                    EmailAddress = "tian@email.com",
                     PhoneNumber = "0706543210",
                     Description = "UX/UI designer med känsla för användarvänlighet."
                 },
@@ -57,7 +58,7 @@ namespace REST_API_ResumeHandler.Data
                     PersonId = 4,
                     FirstName = "Nian",
                     LastName = "Niansson",
-                    EmailAdress = "nian@email.com",
+                    EmailAddress = "nian@email.com",
                     PhoneNumber = "0707654321",
                     Description = "Systemutvecklare med flera års arbetslivserfarenhet"
                 }

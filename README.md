@@ -8,6 +8,7 @@ This is a school project from Chas Academy's Fullstack .NET Developer program. T
 - **Manage Personal Information**: Create, view, update, and delete personal details
 - **Track Education History**: Record and manage education achievements
 - **Document Work Experience**: Store professional experience information
+- **GitHub Integration**: Retrieve public repository information for any GitHub username
 
 Each person record includes:
 - 👤 First and last name
@@ -17,38 +18,21 @@ Each person record includes:
 
 ## 🛠️ Technologies
 - ASP.NET Core Minimal API
-- Entity Framework Core
+- Entity Framework Core with **Code-First** approach
 - SQL Server LocalDB
+- External API integration (GitHub)
 
-## 🔄 API Structure
-The API consists of three main components:
-
-### 👤 Person
-- Get all persons
-- Get person by ID
-- Get person with detailed education and experience
-- Create new person
-- Update person
-- Delete person
-
-### 🎓 Education
-- Get all education records
-- Get education by ID
-- Get education records for specific person
-- Create new education record
-- Update education record
-- Delete education record
-
-### 💼 Experience
-- Get all experience records
-- Get experience by ID
-- Get experience records for specific person
-- Create new experience record
-- Update experience record
-- Delete experience record
+## 🔍 Error Handling
+The API returns appropriate HTTP status codes:
+- 200 OK - Successful operations
+- 201 Created - New resource created
+- 204 No Content - Successful deletion
+- 400 Bad Request - Validation errors or invalid data
+- 404 Not Found - Resource not found
+- 500 Internal Server Error - Server-side issues
 
 ## 📂 Project Structure
-- **Models**: Data models for Person, Education, and Experience
+- **Models**: Data models for Person, Education, Experience, and GitHub data
 - **DTOs**: Data Transfer Objects for safe data transfer
 - **Endpoints**: Minimal API endpoint definitions for each entity
 - **Data**: DbContext for database connectivity with seeded test data
