@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace REST_API_ResumeHandler.Models
+namespace REST_API_ResumeHandler.Models.Internal
 {
     public class Person
     {

@@ -1,24 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace REST_API_ResumeHandler.Models
+namespace REST_API_ResumeHandler.Models.Internal
 {
-    public class Experience
+    public class Education
     {
         [Key]
-        public int ExperienceId { get; set; }
+        public int EducationId { get; set; }
 
-        [Required(ErrorMessage = "A job title is required")]
+        [Required(ErrorMessage = "A school name is required")]
         [StringLength(300, MinimumLength = 3)]
-        public string Title { get; set; }
+        public string School { get; set; }
 
-        [Required(ErrorMessage = "Company name is required")]
+        [Required(ErrorMessage = "A degree name is required")]
         [StringLength(300, MinimumLength = 3)]
-        public string Company { get; set; }
-
-        [Required(ErrorMessage = "Description is required")]
-        [StringLength(500, MinimumLength = 3)]
-        public string Description { get; set; }
+        public string Degree { get; set; }
 
         [Required]
         [Range(1950, 2050, ErrorMessage = "Provide a valid year between 1950 and 2050")]

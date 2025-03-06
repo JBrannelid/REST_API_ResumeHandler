@@ -21,8 +21,21 @@ namespace REST_API_ResumeHandler
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // HttpClient services for external API
+            // An instance of HttpClient is created and shared across the application as DI service
             builder.Services.AddHttpClient();
+
+            // API could be configur so frontend could acces 
+            builder.Services.AddCors((options) =>
+            {
+                // Config specifik endpoint could access backend and name i MyReactApp
+                options.AddPolicy("MyReactApp", policy =>
+                {
+                    // Accept domain from frontend
+                    policy.WithOrigins("http://localhost:5174")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+                });
+            });
 
             var app = builder.Build();
 
@@ -33,9 +46,11 @@ namespace REST_API_ResumeHandler
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            app.UseHttpsRedirection(); 
 
-            app.UseAuthorization();
+            app.UseAuthorization(); // Auth-middleware not used in this project
+
+            app.UseCors("MyReactApp"); // CORS-middleware
 
             // Call internal endpoints using Route Group Builder organization of related endpoints
             // This approach groups endpoints by common path prefixes
@@ -45,7 +60,7 @@ namespace REST_API_ResumeHandler
 
             // Call external endpoints directly with direct mapping
             // Direct mapping for GitHub as it only has a single endpoint
-            app.MapGitHubEndpoints();
+            GitHubEndpoints.MapGitHubEndpoints(app);
 
             app.Run();
         }

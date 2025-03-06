@@ -4,6 +4,7 @@ using REST_API_ResumeHandler.DTOs.Education;
 using REST_API_ResumeHandler.DTOs.Experience;
 using REST_API_ResumeHandler.DTOs.Person;
 using REST_API_ResumeHandler.Models;
+using REST_API_ResumeHandler.Models.Internal;
 using System.ComponentModel.DataAnnotations;
 
 namespace REST_API_ResumeHandler.Endpoints

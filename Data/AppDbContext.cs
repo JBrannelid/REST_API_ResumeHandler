@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using REST_API_ResumeHandler.Models;
+using REST_API_ResumeHandler.Models.Internal;
 
 namespace REST_API_ResumeHandler.Data
 {
